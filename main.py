@@ -1,14 +1,18 @@
 from fastapi import FastAPI
 import requests
-
+import os
 app = FastAPI()
 
-JAVA_SERVER_URL = "http://10.100.102.41:8080/logs"
+spring_url = os.environ['SPRING_ADDR']
+print(f"Spring address: {spring_url}")
+
+JAVA_SERVER_URL = f"http://{spring_url}/logs"
 
 test_log_data = {
     "date": "2022-02-12T12:00:00",
     "route": "/hello"
 }
+
 
 def assert_and_print(expected, actual, field_name):
     if expected == actual:
@@ -16,12 +20,14 @@ def assert_and_print(expected, actual, field_name):
     else:
         print(f"{field_name} - FAILED")
 
+
 def is_server_up(url):
     try:
         response = requests.get(url, timeout=5)
         return response.status_code == 200
     except requests.RequestException:
         return False
+
 
 @app.get("/run-tests")
 def run_tests():
